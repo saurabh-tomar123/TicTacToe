@@ -1,8 +1,15 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { increment, decrement, incrementByAmount } from './redux/historytSlice';
+
 
 const Board = () => {
   const [squares, setSquares] = useState(Array(64).fill(null));
   const [currentPlayer, setCurrentPlayer] = useState(1);
+  const count = useSelector((state) => state);
+  const dispatch = useDispatch();
+
+  console.log("=====>",count.counter.history)
 
   const players = ['X', 'O', 'A', 'B'];
   const playerColors = ['bg-red-500', 'bg-blue-500', 'bg-green-500', 'bg-yellow-500'];
@@ -25,18 +32,47 @@ const Board = () => {
       className={squares[i] ? playerColors[players.indexOf(squares[i])] : 'bg-gray-200'}
     />
   );
+ const resestData = () => {
+    setSquares(Array(64).fill(null))
+    setCurrentPlayer(1) 
+ }
 
-  const winner = calculateWinner(squares);
-  let status;
-  if (winner) {
-    status = `Winner: Player ${players.indexOf(winner) + 1} (${winner})`;
-  } else {
-    status = `Next player: Player ${currentPlayer} (${players[currentPlayer - 1]})`;
-  }
 
+ const winner = calculateWinner(squares);
+ let status;
+ useEffect(()=>{
+ if (winner) {
+  dispatch(increment(winner))
+  status = `Winner: Player ${players.indexOf(winner) + 1} (${winner})`;
+} else {
+  status = `Next player: Player ${currentPlayer} (${players[currentPlayer - 1]})`;
+}
+  
+ },[winner])
+
+//  if (winner) {
+//   status = `Winner: Player ${players.indexOf(winner) + 1} (${winner})`;
+// } else {
+//   status = `Next player: Player ${currentPlayer} (${players[currentPlayer - 1]})`;
+// }
   return (
     <div className="flex flex-col items-center mt-4">
       <div className="text-xl mb-4">{status}</div>
+      <button
+  className="border border-green-500 mb-2.5 bg-red-500 rounded-lg w-[150px] h-[40px]"
+  onClick={() => resestData()}
+>
+  Restart
+</button>
+{count.counter.history.map((item)=> 
+  <>
+  <h1>History</h1>
+  <div style={{backgroundColor:"gray", border:"1px solid balck", padding:"10px"}}>
+<span>Date: {JSON.stringify(item.date)}</span><span>winner: {item.winner}</span>
+  </div>
+  </>
+)}
+
       <div className="grid grid-cols-8 gap-1">
         {Array(64).fill(null).map((_, i) => renderSquare(i))}
       </div>
